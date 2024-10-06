@@ -14,7 +14,7 @@ public class Tetrahedron
     }
 }
 
-public class pyraminxManager : MonoBehaviour
+public class PyraminxManager : MonoBehaviour
 {
     public GameObject tetrahedronPrefab; // Reference to the tetrahedron prefab
     private List<Tetrahedron> tetrahedrons = new List<Tetrahedron>(); // List to hold tetrahedrons
@@ -26,23 +26,29 @@ public class pyraminxManager : MonoBehaviour
 
     void CreatePyraminx()
     {
-        // Position offsets for the layers of the Pyraminx
-        Vector3[] positions = new Vector3[]
+        // Calculate vertices of the original tetrahedron
+        Vector3 p0 = new Vector3(0, 0, 0);
+        Vector3 p1 = new Vector3(1, 0, 0);
+        Vector3 p2 = new Vector3(0.5f, 0, Mathf.Sqrt(0.75f));
+        Vector3 p3 = new Vector3(0.5f, Mathf.Sqrt(0.75f) / 2, Mathf.Sqrt(0.75f) / 2); // Top vertex
+
+        // Create the top tetrahedron
+        GameObject topTetra = Instantiate(tetrahedronPrefab, p3, Quaternion.identity);
+        tetrahedrons.Add(new Tetrahedron(topTetra, 2)); // Assuming the top face is outward facing
+
+        // Position offsets for the lower layer tetrahedrons
+        Vector3[] lowerPositions = new Vector3[]
         {
-            Vector3.zero, // Top tetrahedron
-            new Vector3(-0.5f, -0.866f, 0), // Left lower tetrahedron
-            new Vector3(0.5f, -0.866f, 0), // Right lower tetrahedron
-            new Vector3(0, -0.866f * 2, 0), // Bottom tetrahedron
-            // Add more positions as necessary for the complete Pyraminx
+            new Vector3(0.5f, 0, 0), // Left base vertex of top tetrahedron
+            new Vector3(1, 0, 0), // Right base vertex of top tetrahedron
+            new Vector3(0.5f, 0, Mathf.Sqrt(0.75f)), // Base vertex of the top tetrahedron
         };
 
-        // Create and assign outward faces
-        int[] outwardFaces = new int[] { 2, 0, 1, 3 }; // Example: 0 is red, 1 is blue, etc.
-
-        for (int i = 0; i < positions.Length; i++)
+        // Create lower tetrahedrons
+        for (int i = 0; i < lowerPositions.Length; i++)
         {
-            GameObject tetra = Instantiate(tetrahedronPrefab, positions[i], Quaternion.identity);
-            tetrahedrons.Add(new Tetrahedron(tetra, outwardFaces[i]));
+            GameObject lowerTetra = Instantiate(tetrahedronPrefab, lowerPositions[i], Quaternion.identity);
+            tetrahedrons.Add(new Tetrahedron(lowerTetra, i)); // Different outward face for each
         }
     }
 
